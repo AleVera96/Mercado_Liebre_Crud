@@ -25,7 +25,15 @@ const controller = {
 	},
 	
 	// Create -  Method to store
-	store: (req, res) => {
+	store:(req,res,next)=>{
+			const files = req.files;
+			const filename = files.map(file => file.filename)
+			const json = fs.readFileSync(path.join(__dirname, "../data/productsDataBase.json"), "utf-8");
+			const products = JSON.parse(json);
+			  
+			if (!files || !files.length){
+		   return res.status(400).send('Por favor seleccione un archivo');
+			 }else{
 		const {name,price,discount,category,description} = req.body
 		const lastProduct = products[products.length - 1];
 		const newId = lastProduct ? lastProduct.id + 1 : 1;
@@ -35,13 +43,14 @@ const controller = {
 			price: price.trim(),
 			discount: discount.trim(),
 			category: category.trim(),
-			description: description.trim()
+			description: description.trim(),
+			image: filename,
 		}
 	
 		products.push(newProduct);
 		fs.writeFileSync(productsFilePath, JSON.stringify(products), 'utf-8');
 		 res.redirect('/products');
-	},
+	}},
 
 	// Update - Form to edit
 	edit: (req, res) => {
